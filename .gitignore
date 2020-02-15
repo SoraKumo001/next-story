@@ -1,0 +1,7 @@
+node_modules
+__screenshots__
+reg.json
+.next
+*.log
+out
+__reg__
