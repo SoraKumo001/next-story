@@ -1,5 +1,10 @@
 import gql from 'graphql-tag';
+import * as React from 'react';
+import * as ApolloReactCommon from '@apollo/react-common';
+import * as ApolloReactComponents from '@apollo/react-components';
+import * as ApolloReactHoc from '@apollo/react-hoc';
 export type Maybe<T> = T | null;
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string,
@@ -11063,4 +11068,40 @@ export type ViewerHovercardContext = HovercardContext & {
 };
 
 
+export type TestQueryQueryVariables = {};
 
+
+export type TestQueryQuery = (
+  { __typename?: 'Query' }
+  & { viewer: (
+    { __typename?: 'User' }
+    & Pick<User, 'login'>
+  ) }
+);
+
+
+export const TestQueryDocument = gql`
+    query TestQuery {
+  viewer {
+    login
+  }
+}
+    `;
+export type TestQueryComponentProps = Omit<ApolloReactComponents.QueryComponentOptions<TestQueryQuery, TestQueryQueryVariables>, 'query'>;
+
+    export const TestQueryComponent = (props: TestQueryComponentProps) => (
+      <ApolloReactComponents.Query<TestQueryQuery, TestQueryQueryVariables> query={TestQueryDocument} {...props} />
+    );
+    
+export type TestQueryProps<TChildProps = {}> = ApolloReactHoc.DataProps<TestQueryQuery, TestQueryQueryVariables> & TChildProps;
+export function withTestQuery<TProps, TChildProps = {}>(operationOptions?: ApolloReactHoc.OperationOption<
+  TProps,
+  TestQueryQuery,
+  TestQueryQueryVariables,
+  TestQueryProps<TChildProps>>) {
+    return ApolloReactHoc.withQuery<TProps, TestQueryQuery, TestQueryQueryVariables, TestQueryProps<TChildProps>>(TestQueryDocument, {
+      alias: 'testQuery',
+      ...operationOptions
+    });
+};
+export type TestQueryQueryResult = ApolloReactCommon.QueryResult<TestQueryQuery, TestQueryQueryVariables>;

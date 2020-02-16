@@ -13,6 +13,7 @@ const REDIRECT_URI = `http://localhost:${PORT}/api/token`;
 
 const CODEGEN_SETTING = {
   overwrite: true,
+  documents: "src/**/*.{ts,tsx}",
   generates: {
     "src/generated/graphql.tsx": {
       plugins: [
@@ -57,7 +58,6 @@ module.exports = new Promise(resolve => {
           const { access_token } = JSON.parse(body);
           if (access_token) {
             console.log("Recv access token");
-            res.end(access_token);
             res.end("<HTML><HEAD><SCRIPT>window.close()</SCRIPT></HEAD></HTML>");
             server.close(() => {
               setting = {
