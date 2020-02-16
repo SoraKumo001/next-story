@@ -1,2 +1,2 @@
 import { configure } from '@storybook/react';
-configure(require.context('../pages', true, /\.stories\.tsx?$/), module);
+configure(require.context('../src/pages', true, /\.stories\.tsx?$/), module);
