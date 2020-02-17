@@ -8,14 +8,6 @@ import {
 } from "apollo-boost";
 import fetch from "isomorphic-unfetch";
 import { ApolloProvider } from "react-apollo";
-import session from "express-session";
-
-const s = session({
-  secret: "nextjs",
-  resave: true,
-  saveUninitialized: true,
-  cookie: { secure: true, httpOnly: true, maxAge: 1000 * 60 * 30 }
-});
 
 const IS_BROWSER = !!process.browser;
 const URI_ENDPOINT = "https://api.github.com/graphql";
@@ -37,26 +29,11 @@ function createClient(initialState?: NormalizedCacheObject) {
 const client = createClient();
 
 export default class _App extends App {
-  static getInitialProps({ Component, ctx }: AppContext) {
-    return new Promise<AppInitialProps>(resolv => {
-      if (ctx.req)
-        s(ctx.req as any, ctx.res as any, () => {
-          console.log(ctx.req["session"]);
-          ctx.req["session"]["test"] = new Date().toLocaleString();
-          // s(ctx.req as any, ctx.res as any,()=>{});
-          resolv(
-            (Component.getInitialProps
-              ? Component.getInitialProps(ctx)
-              : {}) as AppInitialProps
-          );
-        });
-      else
-        resolv(
-          (Component.getInitialProps
-            ? Component.getInitialProps(ctx)
-            : {}) as AppInitialProps
-        );
-    });
+  static async getInitialProps({ Component, ctx }: AppContext) {
+   // ctx.req["session"]["test"] = 'aaaa';
+    return (Component.getInitialProps
+      ? Component.getInitialProps(ctx)
+      : {}) as AppInitialProps;
   }
   render() {
     const { Component, pageProps } = this.props;
