@@ -14,7 +14,7 @@ express.use(
     secret: "nextjs",
     resave: true,
     saveUninitialized: true,
-    cookie: { secure: true, httpOnly: true, maxAge: 1000 * 60 * 30 }
+    cookie: {  maxAge: 1000 * 60 * 30 }
   })
 );
 
