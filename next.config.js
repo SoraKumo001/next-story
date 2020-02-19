@@ -1,3 +1,4 @@
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const ignoreEntory = /\.stories\.js$/;
 const ignoreMap = /\.stories$/;
 
@@ -11,6 +12,10 @@ module.exports = {
         key => ignoreEntory.test(key) && delete entries[key]
       );
       return entries;
+    },
+    resolve: {
+      ...config.resolve,
+      plugins: [new TsconfigPathsPlugin()]
     }
   }),
   exportPathMap: async pathMap => {

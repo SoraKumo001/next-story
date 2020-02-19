@@ -40,6 +40,7 @@
     "react-dom": "^16.12.0",
     "reg-cli": "^0.16.0",
     "storycap": "^2.3.4",
+    "tsconfig-paths-webpack-plugin": "^3.2.0",
     "typescript": "^3.7.5"
   }
 }

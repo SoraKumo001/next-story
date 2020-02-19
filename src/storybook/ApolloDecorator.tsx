@@ -1,4 +1,6 @@
 import * as React from "react";
+import router, { Router } from "next/router";
+
 import {
   ApolloClient,
   HttpLink,
@@ -8,7 +10,13 @@ import {
 import { ApolloProvider } from "react-apollo";
 
 const URI_ENDPOINT = "https://api.github.com/graphql";
-const TOKEN = process.env.GRAPHQL_TOKEN;
+const TOKEN = process.env.STORYBOOK_GITHUB_TOKEN;
+
+router.router = ({
+  push: async(url) => {console.log("router-push",url)},
+  prefetch: async(url) => {console.log("router-prefech",url)}
+} as unknown) as Router;
+
 function createClient(initialState?: NormalizedCacheObject) {
   return new ApolloClient({
     link: new HttpLink({
@@ -19,8 +27,8 @@ function createClient(initialState?: NormalizedCacheObject) {
   });
 }
 const client = createClient();
-const apolloDecorator = storyFn => (
-  <ApolloProvider client={client}>{storyFn()}</ApolloProvider>
+const apolloDecorator = story => (
+  <ApolloProvider client={client}>{story()}</ApolloProvider>
 );
 
-export {apolloDecorator}
+export { apolloDecorator };
