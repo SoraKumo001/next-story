@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "node src/server.js",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "export": "next export",
@@ -26,7 +26,9 @@
     "@types/express-session": "^1.15.16",
     "@types/node": "^13.7.1",
     "@types/react": "^16.9.19",
+    "@types/request": "^2.48.4",
     "apollo-boost": "^0.4.7",
+    "axios": "^0.19.2",
     "babel-loader": "^8.0.6",
     "babel-preset-react-app": "^9.1.1",
     "express-session": "^1.17.0",

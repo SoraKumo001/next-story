@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import App, { Container, AppContext, AppInitialProps } from "next/app";
+import React from "react";
+import App, { AppContext, AppInitialProps, createUrl } from "next/app";
 import {
   ApolloClient,
   HttpLink,
@@ -28,21 +28,34 @@ function createClient(initialState?: NormalizedCacheObject) {
 
 const client = createClient();
 
+import express from "express";
+import expressSession from "express-session";
+const session = expressSession({
+  secret: "nextjs"
+});
+export interface PagesProps {
+  url: ReturnType<typeof createUrl>;
+}
 export default class _App extends App {
   static async getInitialProps({ Component, ctx }: AppContext) {
-   // ctx.req["session"]["test"] = 'aaaa';
-    return (Component.getInitialProps
-      ? Component.getInitialProps(ctx)
-      : {}) as AppInitialProps;
+    if (!ctx.req) return Component.getInitialProps(ctx) as AppInitialProps;
+    return new Promise<AppInitialProps>(resolv => {
+      session(ctx.req as express.Request, ctx.res as express.Response, () => {
+        resolv(
+          (Component.getInitialProps
+            ? Component.getInitialProps(ctx)
+            : {}) as AppInitialProps
+        );
+      });
+    });
   }
   render() {
-    const { Component, pageProps } = this.props;
+    const { router, Component, pageProps } = this.props;
+    const url = createUrl(router);
     return (
-      <Container>
-        <ApolloProvider client={client}>
-          <Component {...pageProps} />
-        </ApolloProvider>
-      </Container>
+      <ApolloProvider client={client}>
+        <Component {...pageProps} url={url} />
+      </ApolloProvider>
     );
   }
 }

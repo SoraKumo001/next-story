@@ -25,6 +25,9 @@ export default () => (
         </>
       )}
     </Query> */}
+    <Link href="login">
+    <a>Login</a>
+  </Link>
     <Link href="page02">
       <a>Page2へ</a>
     </Link>
