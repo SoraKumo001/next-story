@@ -11,22 +11,20 @@ import { ApolloProvider } from "react-apollo";
 
 const IS_BROWSER = !!process.browser;
 const URI_ENDPOINT = "https://api.github.com/graphql";
-const TOKEN = "";
-function createClient(initialState?: NormalizedCacheObject) {
+
+function createClient(token: string, initialState?: NormalizedCacheObject) {
   return new ApolloClient({
     connectToDevTools: IS_BROWSER,
     ssrMode: !IS_BROWSER,
     link: new HttpLink({
       fetch: IS_BROWSER ? fetch : undefined,
       uri: URI_ENDPOINT,
-      headers: { Authorization: `bearer ${TOKEN}` },
+      headers: { Authorization: `bearer ${token}` },
       credentials: "same-origin"
     }),
     cache: new InMemoryCache().restore(initialState || {})
   });
 }
-
-const client = createClient();
 
 import express from "express";
 import expressSession from "express-session";
@@ -37,19 +35,20 @@ export interface PagesProps {
   url: ReturnType<typeof createUrl>;
 }
 export default class _App extends App {
-  static async getInitialProps({ Component, ctx }: AppContext) {
-    if (!ctx.req) return Component.getInitialProps(ctx) as AppInitialProps;
+  static token: string = "";
+  static async getInitialProps(context: AppContext) {
+    const { ctx } = context;
+    const req = ctx.req as express.Request | undefined;
+    if (!req) return App.getInitialProps(context);
     return new Promise<AppInitialProps>(resolv => {
-      session(ctx.req as express.Request, ctx.res as express.Response, () => {
-        resolv(
-          (Component.getInitialProps
-            ? Component.getInitialProps(ctx)
-            : {}) as AppInitialProps
-        );
+      session(req, ctx.res as express.Response, () => {
+        _App.token = req.session["token"] || "";
+        resolv(App.getInitialProps(context));
       });
     });
   }
   render() {
+    const client = createClient(_App.token);
     const { router, Component, pageProps } = this.props;
     const url = createUrl(router);
     return (

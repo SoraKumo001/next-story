@@ -4,7 +4,6 @@ import { NextPageContext } from "next";
 import express from "express";
 import url from "url";
 import axios from "axios";
-import { Router } from "next/router";
 
 //クライアントキー(自分で用意することを推奨)
 const CLIENT_ID = "71b833b9368620c06b3e";
@@ -27,7 +26,6 @@ export default class Login extends Component<PagesProps & { token?: string }> {
     if (req) {
       const code = url.parse(req.url, true).query.code as string | undefined;
       if (code) {
-        console.log(code);
         const token = await getToken(code);
         if (token) {
           (req as express.Request).session.token = token;
@@ -35,24 +33,26 @@ export default class Login extends Component<PagesProps & { token?: string }> {
         }
       }
     }
-
     return {};
-  }
-  constructor(props) {
-    super(props);
-    Router.events.on("routeChangeComplete", () => () => props.token && window.close());
   }
   componentDidMount() {
     if (this.props.token) {
+      window.opener.postMessage({ token: this.props.token }, location.href);
       close();
-    }
-    console.log("test");
+    } else
+      addEventListener(
+        "message",
+        event => {
+          if (location.origin.indexOf(event.origin) === 0)
+            if (event.data.token)
+              localStorage.setItem("token", event.data.token);
+        },
+        false
+      );
   }
   render() {
-    const { url } = this.props;
     return (
       <>
-        {console.log(url.query.code)}
         <button onClick={login}>ログイン</button>
       </>
     );
