@@ -8,7 +8,7 @@ import {
   ApolloLink,
   from
 } from "apollo-boost";
-import fetch from "isomorphic-unfetch";
+import fetch from "isomorphic-fetch";
 import { ApolloProvider } from "react-apollo";
 
 const IS_BROWSER = !!process.browser;
@@ -30,10 +30,11 @@ function createClient() {
   return new ApolloClient({
     connectToDevTools: IS_BROWSER,
     ssrMode: !IS_BROWSER,
+    ssrForceFetchDelay:1000,
     link: from([
       apolloLinkToken,
       new HttpLink({
-        fetch: IS_BROWSER ? fetch : undefined,
+        fetch,
         uri: URI_ENDPOINT,
         credentials: "same-origin"
       })
@@ -75,12 +76,11 @@ export default class _App extends App<{ token?: string }> {
   render() {
     const { router, Component, pageProps } = this.props;
     const url = createUrl(router);
-    console.log("token",pageProps.token)
+    token = pageProps.token;
 
     return (
       <ApolloProvider client={client}>
         <Component {...pageProps} url={url} />
-        {console.log("cache", client.cache.extract())}
       </ApolloProvider>
     );
   }
