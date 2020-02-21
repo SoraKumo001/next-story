@@ -17,12 +17,12 @@ export default () => (
   <>
     <div>こんにちは世界！</div>
     <Test01 />
-    <Query<TestQueryQuery> query={TEST_QUERY}>
+    <Query<TestQueryQuery> query={TEST_QUERY} ssr={true}>
       {({ loading, data, error }) => (
         <>
           {loading && <div>Loading</div>}
           {error && <div>{error.message}</div>}
-          {data && <div>{data}</div>}
+          {data && <div>{JSON.stringify(data)}</div>}
         </>
       )}
     </Query>

@@ -4,7 +4,9 @@ import {
   ApolloClient,
   HttpLink,
   InMemoryCache,
-  NormalizedCacheObject
+  NormalizedCacheObject,
+  ApolloLink,
+  from
 } from "apollo-boost";
 import fetch from "isomorphic-unfetch";
 import { ApolloProvider } from "react-apollo";
@@ -12,17 +14,32 @@ import { ApolloProvider } from "react-apollo";
 const IS_BROWSER = !!process.browser;
 const URI_ENDPOINT = "https://api.github.com/graphql";
 
-function createClient(token: string, initialState?: NormalizedCacheObject) {
+const apolloLinkToken = new ApolloLink((operation, forward) => {
+  operation.setContext(({ headers = {} }) => {
+    console.log("h",token)
+    return {
+      headers: {
+        ...headers,
+        authorization: `bearer ${token}` || null
+      }
+    };
+  });
+  return forward(operation);
+});
+
+function createClient() {
   return new ApolloClient({
     connectToDevTools: IS_BROWSER,
     ssrMode: !IS_BROWSER,
-    link: new HttpLink({
-      fetch: IS_BROWSER ? fetch : undefined,
-      uri: URI_ENDPOINT,
-      headers: { Authorization: `bearer ${token}` },
-      credentials: "same-origin"
-    }),
-    cache: new InMemoryCache().restore(initialState || {})
+    link: from([
+      apolloLinkToken,
+      new HttpLink({
+        fetch: IS_BROWSER ? fetch : undefined,
+        uri: URI_ENDPOINT,
+        credentials: "same-origin"
+      })
+    ]),
+    cache: new InMemoryCache()
   });
 }
 
@@ -34,6 +51,9 @@ const session = expressSession({
 export interface PagesProps {
   url: ReturnType<typeof createUrl>;
 }
+let client = createClient();
+var token = '';
+
 export default class _App extends App {
   static token: string = "";
   static async getInitialProps(context: AppContext) {
@@ -42,13 +62,12 @@ export default class _App extends App {
     if (!req) return App.getInitialProps(context);
     return new Promise<AppInitialProps>(resolv => {
       session(req, ctx.res as express.Response, () => {
-        _App.token = req.session["token"] || "";
+        token = req.session["token"] || "";
         resolv(App.getInitialProps(context));
       });
     });
   }
   render() {
-    const client = createClient(_App.token);
     const { router, Component, pageProps } = this.props;
     const url = createUrl(router);
     return (
