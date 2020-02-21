@@ -17,7 +17,7 @@ export default () => (
   <>
     <div>こんにちは世界！</div>
     <Test01 />
-    <Query<TestQueryQuery> query={TEST_QUERY} ssr={true}>
+    <Query<TestQueryQuery> query={TEST_QUERY}>
       {({ loading, data, error }) => (
         <>
           {loading && <div>Loading</div>}

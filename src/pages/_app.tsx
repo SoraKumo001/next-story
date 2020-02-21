@@ -16,7 +16,6 @@ const URI_ENDPOINT = "https://api.github.com/graphql";
 
 const apolloLinkToken = new ApolloLink((operation, forward) => {
   operation.setContext(({ headers = {} }) => {
-    console.log("h",token)
     return {
       headers: {
         ...headers,
@@ -52,27 +51,36 @@ export interface PagesProps {
   url: ReturnType<typeof createUrl>;
 }
 let client = createClient();
-var token = '';
+var token = "";
 
-export default class _App extends App {
+export default class _App extends App<{ token?: string }> {
   static token: string = "";
   static async getInitialProps(context: AppContext) {
     const { ctx } = context;
     const req = ctx.req as express.Request | undefined;
     if (!req) return App.getInitialProps(context);
     return new Promise<AppInitialProps>(resolv => {
-      session(req, ctx.res as express.Response, () => {
+      session(req, ctx.res as express.Response, async () => {
         token = req.session["token"] || "";
-        resolv(App.getInitialProps(context));
+        console.log(token)
+        resolv({
+          pageProps: {
+            ...((await App.getInitialProps(context)).pageProps),
+            token
+          }
+        });
       });
     });
   }
   render() {
     const { router, Component, pageProps } = this.props;
     const url = createUrl(router);
+    console.log("token",pageProps.token)
+
     return (
       <ApolloProvider client={client}>
         <Component {...pageProps} url={url} />
+        {console.log("cache", client.cache.extract())}
       </ApolloProvider>
     );
   }
