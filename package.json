@@ -12,7 +12,7 @@
     "reg-local": "node .github/scripts/reg-local",
     "capture": "npm-run-all -p -r sc:*",
     "sc:start-storybook": "start-storybook -p 9001 --ci",
-    "sc:screenshot": "storycap http://localhost:9001",
+    "sc:screenshot": "storycap http://localhost:9001 --stateChangeDelay 3000",
     "graphql-gen": "graphql-codegen --config graphql/codegen.js"
   },
   "devDependencies": {
