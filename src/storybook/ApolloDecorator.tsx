@@ -13,8 +13,12 @@ const URI_ENDPOINT = "https://api.github.com/graphql";
 const TOKEN = process.env.STORYBOOK_GITHUB_TOKEN;
 
 router.router = ({
-  push: async(url) => {console.log("router-push",url)},
-  prefetch: async(url) => {console.log("router-prefech",url)}
+  push: async (url: string) => {
+    console.log("router-push", url);
+  },
+  prefetch: async (url: string) => {
+    console.log("router-prefech", url);
+  }
 } as unknown) as Router;
 
 function createClient(initialState?: NormalizedCacheObject) {
@@ -27,7 +31,7 @@ function createClient(initialState?: NormalizedCacheObject) {
   });
 }
 const client = createClient();
-const apolloDecorator = story => (
+const apolloDecorator = (story: () => JSX.Element) => (
   <ApolloProvider client={client}>{story()}</ApolloProvider>
 );
 

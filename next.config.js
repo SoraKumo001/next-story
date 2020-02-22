@@ -3,7 +3,7 @@ const ignoreEntory = /\.stories\.js$/;
 const ignoreMap = /\.stories$/;
 
 module.exports = {
-  assetPrefix: "./",
+  //assetPrefix: ".",
   webpack: config => ({
     ...config,
     entry: async () => {

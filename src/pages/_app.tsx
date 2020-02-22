@@ -1,87 +1,118 @@
 import React from "react";
-import App, { AppContext, AppInitialProps, createUrl } from "next/app";
+import App, { AppContext, createUrl } from "next/app";
 import {
   ApolloClient,
   HttpLink,
   InMemoryCache,
-  NormalizedCacheObject,
-  ApolloLink,
-  from
+  NormalizedCacheObject
 } from "apollo-boost";
-import fetch from "isomorphic-fetch";
-import { ApolloProvider } from "react-apollo";
-
+import fetch from "isomorphic-unfetch";
+import { ApolloProvider, getMarkupFromTree } from "react-apollo";
+import { initialSession } from "@components/next-session";
+import axios from "axios";
 const IS_BROWSER = !!process.browser;
 const URI_ENDPOINT = "https://api.github.com/graphql";
 
-const apolloLinkToken = new ApolloLink((operation, forward) => {
-  operation.setContext(({ headers = {} }) => {
-    return {
-      headers: {
-        ...headers,
-        authorization: `bearer ${token}` || null
-      }
-    };
-  });
-  return forward(operation);
-});
-
-function createClient() {
+function createClient(
+  token: string | undefined | null,
+  initialState: any = {}
+) {
   return new ApolloClient({
     connectToDevTools: IS_BROWSER,
     ssrMode: !IS_BROWSER,
-    ssrForceFetchDelay:1000,
-    link: from([
-      apolloLinkToken,
-      new HttpLink({
-        fetch,
-        uri: URI_ENDPOINT,
-        credentials: "same-origin"
-      })
-    ]),
-    cache: new InMemoryCache()
+    link: new HttpLink({
+      fetch,
+      uri: URI_ENDPOINT,
+      headers: {
+        authorization: `bearer ${token}`
+      }
+    }),
+    cache: new InMemoryCache().restore(initialState)
   });
 }
 
-import express from "express";
-import expressSession from "express-session";
-const session = expressSession({
-  secret: "nextjs"
-});
 export interface PagesProps {
   url: ReturnType<typeof createUrl>;
+  graphqlToken?: string;
 }
-let client = createClient();
-var token = "";
+export interface Props {
+  pageProps: PagesProps;
+}
+interface State {
+  client?: ApolloClient<NormalizedCacheObject>;
+}
 
-export default class _App extends App<{ token?: string }> {
-  static token: string = "";
-  static async getInitialProps(context: AppContext) {
-    const { ctx } = context;
-    const req = ctx.req as express.Request | undefined;
-    if (!req) return App.getInitialProps(context);
-    return new Promise<AppInitialProps>(resolv => {
-      session(req, ctx.res as express.Response, async () => {
-        token = req.session["token"] || "";
-        console.log(token)
-        resolv({
-          pageProps: {
-            ...((await App.getInitialProps(context)).pageProps),
-            token
-          }
+export default class _App extends App<Props, PagesProps, State> {
+  static async getInitialProps({ ctx, Component }: AppContext) {
+    if (IS_BROWSER)
+      return {
+        pageProps:
+          (Component.getInitialProps && Component.getInitialProps(ctx)) || {}
+      };
+
+    const session = await initialSession(ctx);
+    const graphqlToken = session && session.graphqlToken;
+    const client = createClient(graphqlToken);
+    const pageProps =
+      Component.getInitialProps && (await Component.getInitialProps(ctx));
+    await getMarkupFromTree({
+      tree: (
+        <ApolloProvider client={client}>
+          <Component {...pageProps} />
+        </ApolloProvider>
+      )
+    }).catch(() => {});
+    return {
+      pageProps: {
+        ...pageProps,
+        graphqlToken,
+        apolloCache: client.extract()
+      }
+    };
+  }
+  state: State = {};
+  onMessage(event: MessageEvent) {
+    if (event?.data?.action === "UPDATE_GRAPHQL_TOKEN") {
+      const token = event?.data?.token;
+      if (token) localStorage.setItem("graphqlToken", token);
+      else localStorage.removeItem("graphqlToken");
+      this.setState({ client: createClient(token) });
+      this.forceUpdate();
+    }
+  }
+  componentDidMount() {
+    const graphqlToken =
+      typeof window !== "undefined" && localStorage.getItem("graphqlToken");
+    if (graphqlToken) {
+      if (!this.props.pageProps.token) {
+        axios.post("/api/token", {
+          graphqlToken
         });
+      }
+    }
+    if (!this.state.client) {
+      this.setState({
+        client: createClient(
+          this.props.pageProps.token || graphqlToken,
+          this.props.pageProps.apolloCache
+        )
       });
-    });
+      this.forceUpdate();
+    }
+    addEventListener("message", e => this.onMessage(e));
   }
   render() {
     const { router, Component, pageProps } = this.props;
     const url = createUrl(router);
-    token = pageProps.token;
 
     return (
-      <ApolloProvider client={client}>
-        <Component {...pageProps} url={url} />
-      </ApolloProvider>
+      <>
+        {this.state.client && (
+          <ApolloProvider client={this.state.client}>
+            <Component {...pageProps} url={url} />
+          </ApolloProvider>
+        )}
+      </>
     );
   }
 }

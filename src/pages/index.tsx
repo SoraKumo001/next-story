@@ -26,9 +26,19 @@ export default () => (
         </>
       )}
     </Query>
-    <Link href="login">
-      <a>Login</a>
-    </Link>
+
+    <div>
+      <a href="github/login" target="_blank">
+        <button>Login</button>
+      </a>
+    </div>
+
+    <div>
+      <a href="github/logout" target="_blank">
+        <button>Logout</button>
+      </a>
+    </div>
+
     <Link href="page02">
       <a>Page2へ</a>
     </Link>
