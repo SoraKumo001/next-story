@@ -13,6 +13,14 @@ module.exports = {
       );
       return entries;
     },
+    node: {
+      "express-session": "empty",
+      MemoryStore: "empty",
+      express: "empty",
+      tls: "empty",
+      page: "empty",
+      net: "empty"
+    },
     resolve: {
       ...config.resolve,
       plugins: [new TsconfigPathsPlugin()]

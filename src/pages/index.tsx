@@ -1,10 +1,9 @@
-import React from "react";
-import Link from "next/link";
-import { Test01 } from "@components/Test01";
 import { Query } from "react-apollo";
 import { TestQueryQuery } from "src/generated/graphql";
-
 import gql from "graphql-tag";
+import { Head } from "@components/Head";
+import { LinkBox } from "@components/LinkBox";
+
 const TEST_QUERY = gql`
   query TestQuery {
     viewer {
@@ -15,32 +14,21 @@ const TEST_QUERY = gql`
 
 export default () => (
   <>
-    <div>こんにちは世界！</div>
-    <Test01 />
+    <style jsx>{`
+      .error {
+        color: red;
+      }
+    `}</style>
+    <Head />
+    <LinkBox href="page02">ページ2へ</LinkBox>
     <Query<TestQueryQuery> query={TEST_QUERY}>
       {({ loading, data, error }) => (
         <>
           {loading && <div>Loading</div>}
-          {error && <div>{error.message}</div>}
-          {data && <div>{JSON.stringify(data)}</div>}
+          {error && <div className="error">{error.message}</div>}
+          {data && <div>ログインユーザ: {data.viewer.login}</div>}
         </>
       )}
     </Query>
-
-    <div>
-      <a href="github/login" target="_blank">
-        <button>Login</button>
-      </a>
-    </div>
-
-    <div>
-      <a href="github/logout" target="_blank">
-        <button>Logout</button>
-      </a>
-    </div>
-
-    <Link href="page02">
-      <a>Page2へ</a>
-    </Link>
   </>
 );

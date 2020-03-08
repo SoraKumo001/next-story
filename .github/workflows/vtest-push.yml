@@ -20,11 +20,11 @@ jobs:
           # yarn build
       - name: Create capture
         env:
-          STORYBOOK_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+          STORYBOOK_GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: yarn capture
       - name: Save capture
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
           BRANCH=`echo $GITHUB_REF | sed 's/^refs\/heads\///'`
           cd __screenshots__

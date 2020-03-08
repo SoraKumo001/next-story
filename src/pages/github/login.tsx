@@ -1,6 +1,5 @@
 import { PagesProps } from "../_app";
 import { Component } from "react";
-import { NextPageContext } from "next";
 import express from "express";
 import url from "url";
 import axios from "axios";

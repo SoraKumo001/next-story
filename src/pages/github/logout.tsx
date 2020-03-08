@@ -4,8 +4,13 @@ import { Request } from "express";
 
 export default class Logout extends Component {
   static async getInitialProps({ req }: NextPageContext) {
-    if (req) delete (req as Request).session;
-    return {};
+    if ((req as Request)?.session?.destroy) {
+      return new Promise(resolve =>
+        (req as Request)?.session?.destroy(() => {
+          resolve();
+        })
+      );
+    }
   }
   componentDidMount() {
     if (window.opener) {

@@ -11079,6 +11079,37 @@ export type TestQueryQuery = (
   ) }
 );
 
+export type RepoListQueryVariables = {
+  count?: Maybe<Scalars['Int']>,
+  before?: Maybe<Scalars['String']>,
+  after?: Maybe<Scalars['String']>
+};
+
+
+export type RepoListQuery = (
+  { __typename?: 'Query' }
+  & { viewer: (
+    { __typename?: 'User' }
+    & { contributionsCollection: (
+      { __typename?: 'ContributionsCollection' }
+      & { repositoryContributions: (
+        { __typename?: 'CreatedRepositoryContributionConnection' }
+        & Pick<CreatedRepositoryContributionConnection, 'totalCount'>
+        & { pageInfo: (
+          { __typename?: 'PageInfo' }
+          & Pick<PageInfo, 'startCursor' | 'hasPreviousPage' | 'hasNextPage' | 'endCursor'>
+        ), nodes: Maybe<Array<Maybe<(
+          { __typename?: 'CreatedRepositoryContribution' }
+          & { repository: (
+            { __typename?: 'Repository' }
+            & Pick<Repository, 'id' | 'name' | 'url' | 'createdAt'>
+          ) }
+        )>>> }
+      ) }
+    ) }
+  ) }
+);
+
 
 export const TestQueryDocument = gql`
     query TestQuery {
@@ -11105,3 +11136,46 @@ export function withTestQuery<TProps, TChildProps = {}>(operationOptions?: Apoll
     });
 };
 export type TestQueryQueryResult = ApolloReactCommon.QueryResult<TestQueryQuery, TestQueryQueryVariables>;
+export const RepoListDocument = gql`
+    query RepoList($count: Int = 10, $before: String, $after: String) {
+  viewer {
+    contributionsCollection {
+      repositoryContributions(last: $count, before: $before, after: $after) {
+        pageInfo {
+          startCursor
+          hasPreviousPage
+          hasNextPage
+          endCursor
+        }
+        totalCount
+        nodes {
+          repository {
+            id
+            name
+            url
+            createdAt
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+export type RepoListComponentProps = Omit<ApolloReactComponents.QueryComponentOptions<RepoListQuery, RepoListQueryVariables>, 'query'>;
+
+    export const RepoListComponent = (props: RepoListComponentProps) => (
+      <ApolloReactComponents.Query<RepoListQuery, RepoListQueryVariables> query={RepoListDocument} {...props} />
+    );
+    
+export type RepoListProps<TChildProps = {}> = ApolloReactHoc.DataProps<RepoListQuery, RepoListQueryVariables> & TChildProps;
+export function withRepoList<TProps, TChildProps = {}>(operationOptions?: ApolloReactHoc.OperationOption<
+  TProps,
+  RepoListQuery,
+  RepoListQueryVariables,
+  RepoListProps<TChildProps>>) {
+    return ApolloReactHoc.withQuery<TProps, RepoListQuery, RepoListQueryVariables, RepoListProps<TChildProps>>(RepoListDocument, {
+      alias: 'repoList',
+      ...operationOptions
+    });
+};
+export type RepoListQueryResult = ApolloReactCommon.QueryResult<RepoListQuery, RepoListQueryVariables>;

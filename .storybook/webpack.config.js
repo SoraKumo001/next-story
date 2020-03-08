@@ -4,7 +4,7 @@ module.exports = ({ config }) => {
     test: /\.(ts|tsx)$/,
     loader: require.resolve('babel-loader'),
     options: {
-      presets: [require.resolve('babel-preset-react-app')],
+      presets: ["next/babel"],
     },
   });
   config.resolve.extensions.push('.ts', '.tsx');
