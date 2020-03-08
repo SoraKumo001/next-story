@@ -23,8 +23,10 @@ services:
     volumes:
       - ../:/src
       - socket-vol:/var/run/socks
+      - node_modules-vol:/src/node_modules
     working_dir: /src
-    command: yarn start
+    command: >
+      bash -c "yarn && yarn build && yarn start"
   # postgres:
   #   image: postgres:latest
   #   environment:
@@ -38,3 +40,4 @@ volumes:
   postgresql-vol:
   socket-vol:
   redis-vol:
+  node_modules-vol:
