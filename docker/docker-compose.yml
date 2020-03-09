@@ -7,6 +7,7 @@ services:
     volumes:
       - ./etc/nginx:/etc/nginx/conf.d
       - /tmp:/var/run/socks
+    restart: always
   redis:
     image: "redis:latest"
     ports:
@@ -16,6 +17,7 @@ services:
       - ./etc/redis/redis.conf:/etc/redis.conf
       - redis-vol:/data
       - /tmp:/var/run/socks
+    restart: always
   node:
     image: node:latest
     ports:
@@ -24,6 +26,7 @@ services:
       - ../:/src
       - /tmp:/var/run/socks
       - node_modules-vol:/src/node_modules
+    restart: always
     working_dir: /src
     command: >
       bash -c "yarn && yarn build && yarn start"
@@ -31,6 +34,7 @@ services:
   #   image: postgres:latest
   #   environment:
   #     POSTGRES_PASSWORD: test
+  #   restart: always
   #   volumes:
   #     - postgresql-vol:/var/lib/postgresql/data
   #     - /tmp:/var/run/postgresql
