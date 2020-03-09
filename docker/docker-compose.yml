@@ -6,7 +6,7 @@ services:
       - "80:80"
     volumes:
       - ./etc/nginx:/etc/nginx/conf.d
-      - socket-vol:/var/run/socks
+      - /tmp:/var/run/socks
   redis:
     image: "redis:latest"
     ports:
@@ -15,14 +15,14 @@ services:
     volumes:
       - ./etc/redis/redis.conf:/etc/redis.conf
       - redis-vol:/data
-      - socket-vol:/var/run/socks
+      - /tmp:/var/run/socks
   node:
     image: node:latest
     ports:
       - 3000:3000
     volumes:
       - ../:/src
-      - socket-vol:/var/run/socks
+      - /tmp:/var/run/socks
       - node_modules-vol:/src/node_modules
     working_dir: /src
     command: >
@@ -33,11 +33,10 @@ services:
   #     POSTGRES_PASSWORD: test
   #   volumes:
   #     - postgresql-vol:/var/lib/postgresql/data
-  #     - socket-vol:/var/run/postgresql
+  #     - /tmp:/var/run/postgresql
   #   ports:
   #     - 5432:5432
 volumes:
   postgresql-vol:
-  socket-vol:
   redis-vol:
   node_modules-vol:
